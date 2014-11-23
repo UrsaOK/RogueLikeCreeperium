@@ -3,7 +3,7 @@
 import libtcodpy as libtcod
 import random
 from collections import defaultdict
-from kartta import Kartta
+from kartta import *
 
         
 class Esine(object):
@@ -43,8 +43,7 @@ class Kylalaiset(Liikkuja):
 
     def update(self):
         suunta = random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
-        while True:
-            self.yrita_likkua(suunta)
+        self.yrita_likkua(suunta)
 
 
 class Taso:
