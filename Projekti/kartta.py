@@ -49,6 +49,15 @@ class Kartta(list):
         for x in range(self.leveys):
             for y in range(self.korkeus):
                 libtcod.console_put_char(0, x, y, self[x][y].merkki, libtcod.BKGND_NONE)
+
+    def path_finding(self, x, y, kohdex, kohdey):
+        jono = []
+        jono.append(x, y)
+        
+
+        while not len(jono) == 0:
+        
+
 class OvienTekija(object):
     def __init__(self, kartta):
         self.alueet = [[0]*kartta.korkeus for _ in range(kartta.leveys)]
