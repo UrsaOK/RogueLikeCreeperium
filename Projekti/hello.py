@@ -50,6 +50,8 @@ class Taso:
     def __init__(self):
         self.kartta = Kartta()
         self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2)) for _ in range(10)]
+    def ruudun_sisalto(self, x, y):
+        return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
         for i in self.esineet:
             i.update()
