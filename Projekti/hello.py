@@ -43,7 +43,7 @@ class Kylalaiset(Liikkuja):
 
     def update(self):
         suunta = random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
-        self.yrita_likkua(suunta)
+        self.yrita_likkua(self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y)[0])
 
 
 class Taso:

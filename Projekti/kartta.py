@@ -52,11 +52,22 @@ class Kartta(list):
 
     def path_finding(self, x, y, kohdex, kohdey):
         jono = []
-        jono.append(x, y)
-        
+        jono.append((x, y, []))
+        kaydyt = set()
+        suunnat = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
         while not len(jono) == 0:
-        
+            x, y, reitti = jono.pop(0)
+
+            if x == kohdex and y == kohdey:
+                return reitti
+
+            if self[x][y].tyhja != True or (x, y) in kaydyt:
+                continue
+            kaydyt.add((x, y))
+
+            for xmod, ymod in suunnat:
+                jono.append((x+xmod, y+ymod, reitti + [(xmod, ymod)]))
 
 class OvienTekija(object):
     def __init__(self, kartta):
