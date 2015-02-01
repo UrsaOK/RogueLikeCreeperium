@@ -20,8 +20,8 @@ class Esine(object):
 
 
 class Liikkuja(Esine):
-    def __init__(self, taso, x, y, img):
-        super(Liikkuja, self). __init__(x, y, img)
+    def __init__(self, taso, *args):
+        super(Liikkuja, self). __init__(*args)
         self.taso = taso
     def liiku(self, suunta):
         self.x += suunta[0]
@@ -29,38 +29,63 @@ class Liikkuja(Esine):
     def tarkista(self, suunta):
         kohdex = self.x + suunta[0]
         kohdey = self.y + suunta[1]
-        print("wasd")
         if self.taso.kartta[kohdex][kohdey].tyhja\
         and len(self.taso.ruudun_sisalto(kohdex, kohdey)) == 0:
-            print("qwerty")
             return True
         else:
-            print("qwerty")
             return False
     def yrita_likkua(self, suunta):
         if self.tarkista(suunta):
             self.liiku(suunta)
             return True
+
 class Pelaaja(Liikkuja):
-    pass
+    def yrita_liikkua(self, suunta):
+        if not super(self, Liikkuja).yrita_liikkua():
+            for i in self.taso.ruudun_sisalto(self.x, self.y):
+                if isinstance(i, HP):
+                    i.damage(1)
 
+class HP:
+    def __init__(self, max, current):
+        self.current = current
+        self.max = max
+    def damage(damage):
+        self.current -= damage
+    def heal(heal):
+        if self.current != self.max:
+            self.current += self.heal
+        self.current = min(self.current, self.max)
+    def is_alive(self):
+        return self.current > 0
 
-class Kylalaiset(Liikkuja):
-    def __init__(self, taso, x, y):
-        super(Kylalaiset, self).__init__(taso, x, y, "+")
-
+class Kylalaiset(Liikkuja, HP):
+    def __init__(self, taso, x, y, vihainen):
+        super(Kylalaiset, self).__init__(taso, x, y, "+", libtcod.sepia)
+        self.tila = self.vihainen if vihainen else self.rauhallinen
+        
     def update(self):
-        suunta = random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
+        self.tila()
+
+    def vihainen(self):
         reitti = self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y)
-        if reitti is None:
+        if reitti is not None and len(reitti) < 11:
             self.yrita_likkua(reitti[0])
+        else:
+            self.yrita_likkua(self.arvo_suunta())
+
+    def rauhallinen(self):
+        self.yrita_likkua(self.arvo_suunta())
+
+    def arvo_suunta(self):
+        return random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
 
 
 
 class Taso:
     def __init__(self):
         self.kartta = Kartta()
-        self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2)) for _ in range(10)]
+        self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(10)]
     def ruudun_sisalto(self, x, y):
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
@@ -84,19 +109,16 @@ LIMIT_FPS = 15  #20 frames-per-second maximum
  
  
 def handle_keys():
-    global playerx, playery
+    suunta = 0, 0
  
-    #key = libtcod.console_check_for_keypress()  #real-time
     key = libtcod.console_wait_for_keypress(True)  #turn-based
  
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         #Alt+Enter: toggle fullscreen
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
- 
     elif key.vk == libtcod.KEY_ESCAPE:
         return True  #exit game
- 
-    if libtcod.console_is_key_pressed(libtcod.KEY_UP):
+    elif libtcod.console_is_key_pressed(libtcod.KEY_UP):
         suunta = 0, -1
     elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
         suunta = 0, 1
@@ -105,7 +127,7 @@ def handle_keys():
     elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
         suunta = 1, 0
     else:
-        suunta = 0, 0
+        return handle_keys()
 
     pelaaja.yrita_likkua(suunta)
 
@@ -119,7 +141,7 @@ libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | 
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'Roguelike', False)
 libtcod.sys_set_fps(LIMIT_FPS)
 taso = Taso()
-pelaaja = Liikkuja(taso, 1, 1, "@")
+pelaaja = Liikkuja(taso, 1, 1, "@", libtcod.light_red)
 taso.esineet.append(pelaaja)
  
 while not libtcod.console_is_window_closed():
