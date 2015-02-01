@@ -7,14 +7,16 @@ from kartta import *
 
         
 class Esine(object):
-    def __init__(self, x, y, img):
+    def __init__(self, x, y, img, fg=libtcod.white, bg=libtcod.black):
         self.x = x
         self.y = y
         self.merkki = img
+        self.fg = fg
+        self.bg = bg
     def update(self):
         pass
     def draw(self):
-        libtcod.console_put_char(0, self.x, self.y, self.merkki, libtcod.BKGND_NONE)
+        libtcod.console_put_char_ex(0, self.x, self.y, self.merkki, self.fg, self.bg)
 
 
 class Liikkuja(Esine):
@@ -25,9 +27,15 @@ class Liikkuja(Esine):
         self.x += suunta[0]
         self.y += suunta[1]
     def tarkista(self, suunta):
-        if self.taso.kartta[self.x + suunta[0]][self.y + suunta[1]].tyhja:
+        kohdex = self.x + suunta[0]
+        kohdey = self.y + suunta[1]
+        print("wasd")
+        if self.taso.kartta[kohdex][kohdey].tyhja\
+        and len(self.taso.ruudun_sisalto(kohdex, kohdey)) == 0:
+            print("qwerty")
             return True
         else:
+            print("qwerty")
             return False
     def yrita_likkua(self, suunta):
         if self.tarkista(suunta):
@@ -43,7 +51,10 @@ class Kylalaiset(Liikkuja):
 
     def update(self):
         suunta = random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
-        self.yrita_likkua(self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y)[0])
+        reitti = self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y)
+        if reitti is None:
+            self.yrita_likkua(reitti[0])
+
 
 
 class Taso:
