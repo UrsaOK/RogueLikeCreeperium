@@ -34,15 +34,15 @@ class Liikkuja(Esine):
             return True
         else:
             return False
-    def yrita_likkua(self, suunta):
+    def yrita_liikkua(self, suunta):
         if self.tarkista(suunta):
             self.liiku(suunta)
             return True
 
 class Pelaaja(Liikkuja):
     def yrita_liikkua(self, suunta):
-        if not super(self, Liikkuja).yrita_liikkua():
-            for i in self.taso.ruudun_sisalto(self.x, self.y):
+        if not super(Pelaaja, self).yrita_liikkua(suunta):
+            for i in self.taso.ruudun_sisalto(self.x+suunta[0], self.y+suunta[1]):
                 if isinstance(i, HP):
                     i.damage(1)
 
@@ -50,9 +50,9 @@ class HP:
     def __init__(self, max, current):
         self.current = current
         self.max = max
-    def damage(damage):
+    def damage(self, damage):
         self.current -= damage
-    def heal(heal):
+    def heal(self, heal):
         if self.current != self.max:
             self.current += self.heal
         self.current = min(self.current, self.max)
@@ -62,20 +62,23 @@ class HP:
 class Kylalaiset(Liikkuja, HP):
     def __init__(self, taso, x, y, vihainen):
         super(Kylalaiset, self).__init__(taso, x, y, "+", libtcod.sepia)
+        HP.__init__(self, 5, 5)
         self.tila = self.vihainen if vihainen else self.rauhallinen
         
     def update(self):
         self.tila()
+        if not self.is_alive():
+            self.taso.esineet.remove(self)
 
     def vihainen(self):
         reitti = self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y)
         if reitti is not None and len(reitti) < 11:
-            self.yrita_likkua(reitti[0])
+            self.yrita_liikkua(reitti[0])
         else:
-            self.yrita_likkua(self.arvo_suunta())
+            self.yrita_liikkua(self.arvo_suunta())
 
     def rauhallinen(self):
-        self.yrita_likkua(self.arvo_suunta())
+        self.yrita_liikkua(self.arvo_suunta())
 
     def arvo_suunta(self):
         return random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
@@ -84,11 +87,13 @@ class Kylalaiset(Liikkuja, HP):
 
 class Taso:
     def __init__(self):
+        self.aika = 0
         self.kartta = Kartta()
         self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(10)]
     def ruudun_sisalto(self, x, y):
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
+        self.aika += 1
         for i in self.esineet:
             i.update()
     def draw(self):
@@ -129,7 +134,7 @@ def handle_keys():
     else:
         return handle_keys()
 
-    pelaaja.yrita_likkua(suunta)
+    pelaaja.yrita_liikkua(suunta)
 
 
  
@@ -141,7 +146,7 @@ libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | 
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'Roguelike', False)
 libtcod.sys_set_fps(LIMIT_FPS)
 taso = Taso()
-pelaaja = Liikkuja(taso, 1, 1, "@", libtcod.light_red)
+pelaaja = Pelaaja(taso, 1, 1, "@", libtcod.light_red)
 taso.esineet.append(pelaaja)
  
 while not libtcod.console_is_window_closed():
