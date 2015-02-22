@@ -14,13 +14,15 @@ TYHJA = Ruutu(" ", True)
 SEINA = Ruutu("#", False)
 SUPERSEINA = Ruutu("?", False)
 
-class Kartta(list):
+class MapData(defaultdict):
+    def __init__(self):
+        super(MapData, self).__init__(lambda: TYHJA)
+
+class Kartta(MapData):
     def __init__(self):
         super(Kartta, self).__init__()
         self.leveys = 80
         self.korkeus = 50
-        for x in range(self.leveys):
-            self.append([TYHJA] * self.korkeus)
 
         global playerx, playery
         playerx, playery = self.huone()
@@ -39,16 +41,16 @@ class Kartta(list):
 
     def tee_seinat(self, x, y, leveys, korkeus, merkki):
         for x2 in range(x, x + leveys):
-            self[x2][y] = merkki
-            self[x2][y + korkeus - 1] = merkki
+            self[x2,y] = merkki
+            self[x2,y + korkeus - 1] = merkki
         for y2 in range(y, y + korkeus):
-            self[x][y2] = merkki
-            self[x + leveys - 1][y2] = merkki
+            self[x,y2] = merkki
+            self[x + leveys - 1,y2] = merkki
 
     def draw(self):
         for x in range(self.leveys):
             for y in range(self.korkeus):
-                libtcod.console_put_char(0, x, y, self[x][y].merkki, libtcod.BKGND_NONE)
+                libtcod.console_put_char(0, x, y, self[x,y].merkki, libtcod.BKGND_NONE)
 
     def path_finding(self, x, y, kohdex, kohdey):
         jono = []
@@ -62,7 +64,7 @@ class Kartta(list):
             if x == kohdex and y == kohdey:
                 return reitti
 
-            if self[x][y].tyhja != True or (x, y) in kaydyt:
+            if self[x,y].tyhja != True or (x, y) in kaydyt:
                 continue
             kaydyt.add((x, y))
 
@@ -80,7 +82,7 @@ class OvienTekija(object):
         numero = 1
         for x in range(self.kartta.leveys):
             for y in range(self.kartta.korkeus):
-                if self.kartta[x][y].tyhja and self.alueet[x][y] == 0:
+                if self.kartta[x,y].tyhja and self.alueet[x][y] == 0:
                     self.flood_fill(x, y, numero)
                     numero += 1
 
@@ -91,7 +93,7 @@ class OvienTekija(object):
         while len(jono) != 0:
             x, y = jono.pop(0)
 
-            if self.alueet[x][y] != 0 or not self.kartta[x][y].tyhja:
+            if self.alueet[x][y] != 0 or not self.kartta[x,y].tyhja:
                 continue
 
             self.alueet[x][y] = numero
@@ -112,7 +114,7 @@ class OvienTekija(object):
         def yrita_lisata(x, y, a, b):
             avain = (min(a, b), max(a, b))
             if yhteydet[avain] < 1:
-                self.kartta[x][y] = OVI
+                self.kartta[x,y] = OVI
                 yhteydet[avain] += 1
 
         for x, y in parit:

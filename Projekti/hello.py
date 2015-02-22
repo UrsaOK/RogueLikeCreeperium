@@ -4,7 +4,8 @@ import libtcodpy as libtcod
 import random
 from collections import defaultdict
 from kartta import *
-
+from kamera import Kamera
+import pickle
         
 class Esine(object):
     def __init__(self, x, y, img, fg=libtcod.white, bg=libtcod.black):
@@ -15,8 +16,8 @@ class Esine(object):
         self.bg = bg
     def update(self):
         pass
-    def draw(self):
-        libtcod.console_put_char_ex(0, self.x, self.y, self.merkki, self.fg, self.bg)
+    def draw(self, offsetx, offsety):
+        libtcod.console_put_char_ex(0, self.x - offsetx, self.y - offsety, self.merkki, self.fg, self.bg)
 
 
 class Liikkuja(Esine):
@@ -29,7 +30,7 @@ class Liikkuja(Esine):
     def tarkista(self, suunta):
         kohdex = self.x + suunta[0]
         kohdey = self.y + suunta[1]
-        if self.taso.kartta[kohdex][kohdey].tyhja\
+        if self.taso.kartta[kohdex,kohdey].tyhja\
         and len(self.taso.ruudun_sisalto(kohdex, kohdey)) == 0:
             return True
         else:
@@ -39,7 +40,7 @@ class Liikkuja(Esine):
             self.liiku(suunta)
             return True
 
-class Pelaaja(Liikkuja):
+class Pelaaja(Liikkuja, Kamera):
     def yrita_liikkua(self, suunta):
         if not super(Pelaaja, self).yrita_liikkua(suunta):
             for i in self.taso.ruudun_sisalto(self.x+suunta[0], self.y+suunta[1]):
@@ -81,29 +82,24 @@ class Kylalaiset(Liikkuja, HP):
         self.yrita_liikkua(self.arvo_suunta())
 
     def arvo_suunta(self):
-        return random.choice(((0, 1), (0, -1), (1, 0), (-1, 0)))
+        return random.choice(((0, 1), (0, -1), (1, 0), (-1, 0), (0, 0)))
 
 
 
 class Taso:
     def __init__(self):
-        self.aika = 0
         self.kartta = Kartta()
         self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(10)]
     def ruudun_sisalto(self, x, y):
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
-        self.aika += 1
         for i in self.esineet:
             i.update()
     def draw(self):
-        self.kartta.draw()
+        pelaaja.kamera_draw()
+        offx, offy = pelaaja.offset()
         for i in self.esineet:
-            i.draw()
-
-
-
-
+            i.draw(offx, offy)
 
 
 #actual size of the window
