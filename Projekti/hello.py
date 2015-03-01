@@ -78,7 +78,7 @@ class Kylalaiset(Liikkuja, HP):
             self.taso.esineet.remove(self)
 
     def vihainen(self):
-        reitti = self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y)
+        reitti = self.taso.kartta.path_finding(self.x, self.y, pelaaja.x, pelaaja.y, 10)
         if reitti is not None and len(reitti) < 11:
             self.yrita_liikkua(reitti[0])
         else:
@@ -95,7 +95,7 @@ class Kylalaiset(Liikkuja, HP):
 class Taso:
     def __init__(self):
         self.kartta = Kartta()
-        self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(10)]
+        self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(100)]
     def ruudun_sisalto(self, x, y):
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
@@ -106,7 +106,8 @@ class Taso:
         pelaaja.kamera_draw()
         offx, offy = pelaaja.offset()
         for i in self.esineet:
-            i.draw(offx, offy)
+            if pelaaja.etaisyys(i) < 85:
+                i.draw(offx, offy)
 
 
 #actual size of the window

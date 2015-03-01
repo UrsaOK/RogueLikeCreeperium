@@ -52,7 +52,7 @@ class Kartta(MapData):
             for y in range(self.korkeus):
                 libtcod.console_put_char(0, x, y, self[x,y].merkki, libtcod.BKGND_NONE)
 
-    def path_finding(self, x, y, kohdex, kohdey):
+    def path_finding(self, x, y, kohdex, kohdey, maxdist=100000):
         jono = []
         jono.append((x, y, []))
         kaydyt = set()
@@ -60,7 +60,8 @@ class Kartta(MapData):
 
         while not len(jono) == 0:
             x, y, reitti = jono.pop(0)
-
+            if len(reitti) > maxdist:
+                continue
             if x == kohdex and y == kohdey:
                 return reitti
 
