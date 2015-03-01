@@ -66,8 +66,8 @@ class Kartta(MapData):
 
             if self[x,y].tyhja != True or (x, y) in kaydyt:
                 continue
+                
             kaydyt.add((x, y))
-
             for xmod, ymod in suunnat:
                 jono.append((x+xmod, y+ymod, reitti + [(xmod, ymod)]))
 

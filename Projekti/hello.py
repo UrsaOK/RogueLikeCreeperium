@@ -6,6 +6,7 @@ from collections import defaultdict
 from kartta import *
 from kamera import Kamera
 import pickle
+import math
         
 class Esine(object):
     def __init__(self, x, y, img, fg=libtcod.white, bg=libtcod.black):
@@ -14,6 +15,11 @@ class Esine(object):
         self.merkki = img
         self.fg = fg
         self.bg = bg
+    def etaisyys(self, kohde):
+        etaisyysx = abs(kohde.x - self.x)
+        etaisyysy = abs(kohde.y - self.y)
+        etaisyys = math.sqrt(etaisyysx*etaisyysx + etaisyysy*etaisyysy)
+        return etaisyys
     def update(self):
         pass
     def draw(self, offsetx, offsety):
@@ -94,7 +100,8 @@ class Taso:
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
         for i in self.esineet:
-            i.update()
+            if pelaaja.etaisyys(i) < 85:
+                i.update()
     def draw(self):
         pelaaja.kamera_draw()
         offx, offy = pelaaja.offset()
