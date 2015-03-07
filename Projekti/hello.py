@@ -7,7 +7,8 @@ from kartta import *
 from kamera import Kamera
 import pickle
 import math
-        
+
+
 class Esine(object):
     def __init__(self, x, y, img, fg=libtcod.white, bg=libtcod.black):
         self.x = x
@@ -59,6 +60,7 @@ class HP:
         self.max = max
     def damage(self, damage):
         self.current -= damage
+        print("pum!")
     def heal(self, heal):
         if self.current != self.max:
             self.current += self.heal
@@ -95,7 +97,7 @@ class Kylalaiset(Liikkuja, HP):
 class Taso:
     def __init__(self):
         self.kartta = Kartta()
-        self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(100)]
+        self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(10)]
     def ruudun_sisalto(self, x, y):
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
