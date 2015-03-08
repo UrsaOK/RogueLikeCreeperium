@@ -60,7 +60,6 @@ class HP:
         self.max = max
     def damage(self, damage):
         self.current -= damage
-        print("pum!")
     def heal(self, heal):
         if self.current != self.max:
             self.current += self.heal
