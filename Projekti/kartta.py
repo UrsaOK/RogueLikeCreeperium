@@ -3,6 +3,8 @@
 import libtcodpy as libtcod
 import random
 from collections import defaultdict
+import pickle
+import game
 
 class Ruutu(object):
     def __init__(self, merkki, tyhja):
@@ -71,7 +73,20 @@ class Kartta(MapData):
             kaydyt.add((x, y))
             for xmod, ymod in suunnat:
                 jono.append((x+xmod, y+ymod, reitti + [(xmod, ymod)]))
-
+class Chunk():
+    def __init__(self, taso, rectangle):
+        self.taso = taso
+        self.rectangle = rectangle
+        self.onko_ladattu = False
+    def lataa(self):
+        self.generoi()
+        self.onko_ladattu = True
+    def poista(self):
+        pass
+    def generoi(self):
+        for i in range(6):
+            self.taso.kartta.huone()
+        OvienTekija(self.taso.kartta)
 class OvienTekija(object):
     def __init__(self, kartta):
         self.alueet = [[0]*kartta.korkeus for _ in range(kartta.leveys)]
