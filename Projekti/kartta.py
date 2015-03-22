@@ -26,18 +26,19 @@ class Kartta(MapData):
         self.leveys = 80
         self.korkeus = 50
 
-        global playerx, playery
-        playerx, playery = self.huone()
-        for i in range(6):
-            self.huone()
-        self.tee_seinat(0, 0, self.leveys, self.korkeus, SUPERSEINA)
-        OvienTekija(self)
+        self[-10,-10] = SUPERSEINA
 
-    def huone(self):
+        #global playerx, playery
+        #playerx, playery = self.huone()
+        #for i in range(6):
+            #self.huone()
+        #OvienTekija(self)
+
+    def huone(self, chunkx, chunky):
         leveys = random.randint(5, 20)
         korkeus = random.randint(5, 20)
-        x = random.randint(0, self.leveys - leveys)
-        y = random.randint(0, self.korkeus - korkeus)
+        x = chunkx + random.randint(0, self.leveys - leveys)
+        y = chunky + random.randint(0, self.korkeus - korkeus)
         self.tee_seinat(x, y, leveys, korkeus, SEINA)
         return x+1, y+1
 
@@ -85,11 +86,11 @@ class Chunk():
         pass
     def generoi(self):
         for i in range(6):
-            self.taso.kartta.huone()
-        OvienTekija(self.taso.kartta)
+            self.taso.kartta.huone(self.rectangle[0], self.rectangle[1])
+        OvienTekija(self.taso.kartta, self.rectangle)
 class OvienTekija(object):
-    def __init__(self, kartta):
-        self.alueet = [[0]*kartta.korkeus for _ in range(kartta.leveys)]
+    def __init__(self, kartta, rectangle):
+        self.alueet = MapData()
         self.kartta = kartta
         self.selvita_alueet()
         self.tee_ovet()
@@ -98,26 +99,26 @@ class OvienTekija(object):
         numero = 1
         for x in range(self.kartta.leveys):
             for y in range(self.kartta.korkeus):
-                if self.kartta[x,y].tyhja and self.alueet[x][y] == 0:
+                if self.kartta[x,y].tyhja and self.alueet[x,y] == 0:
                     self.flood_fill(x, y, numero)
                     numero += 1
 
     def flood_fill(self, x, y, numero):
-
         jono = [(x, y)]
         
         while len(jono) != 0:
             x, y = jono.pop(0)
 
-            if self.alueet[x][y] != 0 or not self.kartta[x,y].tyhja:
+            if self.alueet[x, y] != 0 or not self.kartta[x,y].tyhja:
                 continue
 
-            self.alueet[x][y] = numero
+            self.alueet[x, y] = numero
             
             jono.append((x + 1, y))
             jono.append((x - 1, y))
-            jono.append((x, y - 1))
             jono.append((x, y + 1))
+            jono.append((x, y - 1))
+
     def tee_ovet(self):
         parit = []
         for x in range(1, self.kartta.leveys - 1):
@@ -134,10 +135,10 @@ class OvienTekija(object):
                 yhteydet[avain] += 1
 
         for x, y in parit:
-            up = self.alueet[x][y-1]
-            down = self.alueet[x][y+1]
-            left = self.alueet[x-1][y]
-            right = self.alueet[x+1][y]
+            up = self.alueet[x,y-1]
+            down = self.alueet[x,y+1]
+            left = self.alueet[x-1,y]
+            right = self.alueet[x+1,y]
             if up != 0 and down != 0 and up != down:
                 yrita_lisata(x, y, up, down)  
             if left != 0 and right != 0 and left != right:

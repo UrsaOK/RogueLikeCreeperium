@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import libtcodpy as libtcod
+from kartta import Kartta
 
 
 class Kamera:
@@ -15,13 +16,6 @@ class Kamera:
         endy = starty + 50
         for x_screen, x in enumerate(range(startx, endx)):
             for y_screen, y in enumerate(range(starty, endy)):
-                def tyhja(): libtcod.console_put_char(0, x_screen, y_screen, " ", libtcod.BKGND_NONE)
-                if x < 0 or y < 0:
-                    tyhja()
-                    continue
-                try:
-                    libtcod.console_put_char(0, x_screen, y_screen, self.taso.kartta[x,y].merkki, libtcod.BKGND_NONE)
-                except IndexError:
-                    tyhja()
+                libtcod.console_put_char(0, x_screen, y_screen, self.taso.kartta[x,y].merkki, libtcod.BKGND_NONE)
     def offset(self):
         return -self.centerx + self.x, -self.centery + self.y
