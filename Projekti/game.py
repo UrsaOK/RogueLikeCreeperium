@@ -112,14 +112,15 @@ class Taso:
         self.kartta = kartta.Kartta()
         self.esineet = [Kylalaiset(self, random.randint(1, self.kartta.leveys-2), random.randint(1, self.kartta.korkeus-2), random.choice((True, False))) for _ in range(10)]
         self.chunkit = Chunks(self)
+        kartta.Chunk(self, (-80, -50, 0, 0)).lataa()
     def ruudun_sisalto(self, x, y):
         return [i for i in self.esineet if i.x == x and i.y == y]
     def update(self):
         midx, midy = pelaaja.x // CHUNKSIZE, pelaaja.y // CHUNKSIZE
-        chunks = [self.chunkit[midx + offx, midy + offy] for offx, offy in ((0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1))]
-        for c in chunks:
-            if not c.onko_ladattu:
-                c.lataa()
+        #chunks = [self.chunkit[midx + offx, midy + offy] for offx, offy in ((0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1))]
+        #for c in chunks:
+         #   if not c.onko_ladattu:
+          #      c.lataa()
 
         for i in self.esineet:
             i.update()
