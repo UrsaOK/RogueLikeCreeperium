@@ -6,6 +6,8 @@ from collections import defaultdict
 import pickle
 import game
 
+
+
 class Ruutu(object):
     def __init__(self, merkki, tyhja):
         self.merkki = merkki
@@ -123,13 +125,12 @@ class OvienTekija(object):
 
     def tee_ovet(self):
         parit = []
-        for x in range(1, self.rectangle[2] - 1):
-            for y in range(1, self.rectangle[3] - 1):
+        for x in range(self.rectangle[0], self.rectangle[2] - 1):
+            for y in range(self.rectangle[1], self.rectangle[3] - 1):
                 parit.append((x, y))
 
         random.shuffle(parit)
         yhteydet = defaultdict(lambda: 0)
-
         def yrita_lisata(x, y, a, b):
             avain = (min(a, b), max(a, b))
             if yhteydet[avain] < 1:
