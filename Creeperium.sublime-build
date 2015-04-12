@@ -1,5 +1,0 @@
-{
-	"cmd": "../Portable Python 2.7.6.1/App/python.exe hello.py",
-	"working_dir": "${project_path:${folder}}",
-	"encoding": "cp1252"
-}

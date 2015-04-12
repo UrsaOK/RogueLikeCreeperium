@@ -117,14 +117,24 @@ class Taso:
     def update(self):
         midx, midy = pelaaja.x // CHUNKSIZE, pelaaja.y // CHUNKSIZE
         chunks = [self.chunkit[midx + offx, midy + offy] for offx, offy in ((0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, -1), (-1, 1))]
+        
+        for i in self.chunkit:
+            if i not in chunks:
+                self.chunkit[i].poista()
+                del self.chunkit[i]
+
         for c in chunks:
             if not c.onko_ladattu:
                 c.lataa()
+            
 
         for i in self.esineet:
             i.update()
     def draw(self):
-        pelaaja.kamera_draw()
+        if debug_mode == True:
+            pelaaja.kamera_draw_debug()
+        else:
+            pelaaja.kamera_draw()
         offx, offy = pelaaja.offset()
         for i in self.esineet:
             if pelaaja.etaisyys(i) < 85:
@@ -136,9 +146,12 @@ SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
  
 LIMIT_FPS = 15  #20 frames-per-second maximum
- 
- 
+
+global debug_mode
+debug_mode = False
+
 def handle_keys():
+    global debug_mode
     suunta = 0, 0
  
     key = libtcod.console_wait_for_keypress(True)  #turn-based
@@ -156,6 +169,8 @@ def handle_keys():
         suunta = -1, 0
     elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
         suunta = 1, 0
+    elif libtcod.console_is_key_pressed(libtcod.KEY_F3):
+        debug_mode = not debug_mode
     else:
         return handle_keys()
 
@@ -169,7 +184,7 @@ def run():
     taso = Taso()
     pelaaja = Pelaaja(taso, 1, 1, "@", libtcod.light_red)
     taso.esineet.append(pelaaja)
-     
+    print(pelaaja.x, pelaaja.y)
     while not libtcod.console_is_window_closed():
      
         libtcod.console_set_default_foreground(0, libtcod.white)

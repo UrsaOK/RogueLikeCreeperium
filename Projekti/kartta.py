@@ -17,10 +17,13 @@ OVI = Ruutu(".", True)
 TYHJA = Ruutu(" ", True)
 SEINA = Ruutu("#", False)
 SUPERSEINA = Ruutu("?", False)
+def tyhja():
+    return TYHJA
 
 class MapData(defaultdict):
     def __init__(self):
-        super(MapData, self).__init__(lambda: TYHJA)
+        super(MapData, self).__init__(tyhja)
+
 
 class Kartta(MapData):
     def __init__(self):
@@ -70,7 +73,13 @@ class Chunk():
         self.generoi()
         self.onko_ladattu = True
     def poista(self):
-        pass
+        mapdata = MapData()
+        for x in range(self.rectangle[0], self.rectangle[2]):
+            for y in range(self.rectangle[1], self.rectangle[3]):
+                mapdata[x, y] = self.taso.kartta[x, y]
+                del self.taso.kartta[x, y]
+        with open("_".join(str(self.rectangle)), "wb") as f:
+            pickle.dump(mapdata, f)
     def generoi(self):
         for i in range(6):
             self.huone()
